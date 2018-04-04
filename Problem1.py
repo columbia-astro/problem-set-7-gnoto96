@@ -25,12 +25,6 @@ flux = hdu_data["sap_flux"] # get the flux
 flux_err = hdu_data["sap_flux_err"] # get the error in the flux
 f.close()
 
-eclipse_index = np.where((125>time) & (time>124))
-eclipse_time     = time[eclipse_index]
-eclipse_flux     = flux[eclipse_index]
-eclipse_flux_err = flux_err[eclipse_index]
-
-
 #Defining functions to integrate, and intensity 
 def I(r):
     '''A Limb-darkening function'''
@@ -42,3 +36,23 @@ def func1(r, p, z):
 
 def func2(r, p, z):
     return(I(r) * 2 * r)
+
+#Separate flux,time,flux error for 124<t<125
+extracted_data = np.where((125>time) & (time>124))
+time     = time[extracted_data]
+flux     = flux[extracted_data]
+flux_err = flux_err[extracted_data]
+
+for i in range(5):
+    #Compute flux mean,standard dev 
+    flux_mean = np.mean(flux)
+    flux_std  = np.std(flux)
+    #Exclude transit - remove points 2sigma away from mean
+    boolean_values = (abs(flux-flux_mean)/flux_std<2)
+    flux = flux[boolean_values]
+
+normalized_flux = flux/flux_mean 
+
+
+
+
